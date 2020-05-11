@@ -11,7 +11,7 @@ app.use(cors());
 
 
 
-app.get('/data/location', (req, res) => {
+app.get('./data/location', (req, res) => {
   const dataFromlocation = require('./data/location.json');
 
   Response.send({
@@ -22,3 +22,7 @@ app.get('/data/location', (req, res) => {
 
   });
 });
+
+app.listen(PORT, () =>{
+  console.log(`listening on ${PORT}` )
+})
