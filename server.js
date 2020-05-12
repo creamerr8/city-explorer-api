@@ -49,9 +49,9 @@ function Location(locationJsonFile, reqCityQuery){
 }
 
 
-app.get('/', (req, res) =>{
-  res.redirect('https://codefellows.github.io/code-301-guide/curriculum/city-explorer-app/front-end/')
-})
+// app.get('/', (req, res) =>{
+//   res.redirect('https://codefellows.github.io/code-301-guide/curriculum/city-explorer-app/front-end/')
+// })
 
 
 app.get('/weather', handleWeather)
