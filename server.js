@@ -11,8 +11,47 @@ const app = express();
 app.use(cors());
 
 
+// app.get('/', (req, res) =>{
+//   res.redirect('https://codefellows.github.io/code-301-guide/curriculum/city-explorer-app/front-end/')
+// })
 
 app.get('/location', getLocation) 
+
+app.get('/weather', getWeather)
+
+
+
+
+//---------------------------- functions to get the location and weather ----------------------------
+
+function getWeather(req, res){
+
+  const url = 'https://api.weatherbit.io/v2.0/current';
+  const queryParams = {
+  key: process.env.WEATHER_API_KEY,
+  lat: req.query.lattitude,
+  lon: req.query.longitude
+  };
+
+  superagent.get(url)
+    .query(queryParams)
+    .then(resultWeather =>{
+    const weatherMap = resultWeather.body.data.map(weatherJsonFile => new Weather);
+    res.send(weatherMap);
+  })
+  .catch(error => res.send(error).status(500));
+//   const results = [];
+//   const json = require('./data/weather.json')
+//   const weatherData = json.data;
+//   for(let i = 0; i < weatherData.length; i++){
+//   results.push(new Weather(weatherData[i]));
+// }
+
+  // res.send(results);
+}
+
+
+
 
 function getLocation (req, res){
 
@@ -25,47 +64,24 @@ function getLocation (req, res){
   format: 'json'
   };
 
-
   superagent.get(url)
     .query(queryParams)
-    .then(resultLocationIQ => {
-    const newLocation = new Location(resultLocationIQ.body, reqCityQuery);
-console.log(newLocation);
+    .then(resultLocation => {
+    const newLocation = new Location(resultLocation.body, reqCityQuery);
     res.send(newLocation);
+    console.log(newLocation);
   });
-
-  // const dataFromlocation = req('./data/location.json');
-  // const formattedLocation = new Location(dataFromlocation);
-  // res.send(dataFromlocation);
-
 };
 
+// -----------------------Objects----------------------------------
 
 function Location(locationJsonFile, reqCityQuery){
   this.search_query = reqCityQuery; // TODO: better search query
   this.formatted_query = locationJsonFile[0].display_name;
-  this.lattitude = locationJsonFile[0].lat;
+  this.latitude = locationJsonFile[0].lat;
   this.longitude = locationJsonFile[0].lon;
 }
 
-
-// app.get('/', (req, res) =>{
-//   res.redirect('https://codefellows.github.io/code-301-guide/curriculum/city-explorer-app/front-end/')
-// })
-
-
-app.get('/weather', handleWeather)
-
-function handleWeather(req, res){
-  const results = [];
-  const json = require('./data/weather.json')
-  const weatherData = json.data;
-  for(let i = 0; i < weatherData.length; i++){
-  results.push(new Weather(weatherData[i]));
-}
-
-  res.send(results);
-}
 
 function Weather(weatherJsonFile){
   this.forecast = weatherJsonFile.weather.description;
