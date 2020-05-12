@@ -2,6 +2,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const superagent = require('superagent');
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3000;
@@ -11,14 +12,37 @@ app.use(cors());
 
 
 
-app.get('/location', (req, res) => {
-  const dataFromlocation = req('./data/location.json');
-  const formattedLocation = new Location(dataFromlocation);
-  res.send(dataFromlocation);
-});
+app.get('/location', getLocation) 
 
-function Location(locationJsonFile){
-  this.search_query = locationJsonFile[0].display_name; // TODO: better search query
+function getLocation (req, res){
+
+  const reqCityQuery = req.query.city;
+  const url = 'https://us1.locationiq.com/v1/search.php';
+
+  const queryParams = {
+  q: reqCityQuery,
+  key: process.env.GEOCODE_API_KEY,
+  format: 'json'
+  };
+
+
+  superagent.get(url)
+    .query(queryParams)
+    .then(resultLocationIQ => {
+    const newLocation = new Location(resultLocationIQ.body, reqCityQuery);
+console.log(newLocation);
+    res.send(newLocation);
+  });
+
+  // const dataFromlocation = req('./data/location.json');
+  // const formattedLocation = new Location(dataFromlocation);
+  // res.send(dataFromlocation);
+
+};
+
+
+function Location(locationJsonFile, reqCityQuery){
+  this.search_query = reqCityQuery; // TODO: better search query
   this.formatted_query = locationJsonFile[0].display_name;
   this.lattitude = locationJsonFile[0].lat;
   this.longitude = locationJsonFile[0].lon;
@@ -30,11 +54,11 @@ app.get('/', (req, res) =>{
 })
 
 
-app.get('/weather', handleWather)
+app.get('/weather', handleWeather)
 
-function handleWather(req, res){
+function handleWeather(req, res){
   const results = [];
-  const json = req('./data/weather.json')
+  const json = require('./data/weather.json')
   const weatherData = json.data;
   for(let i = 0; i < weatherData.length; i++){
   results.push(new Weather(weatherData[i]));
@@ -44,7 +68,7 @@ function handleWather(req, res){
 }
 
 function Weather(weatherJsonFile){
-  this.forcast = weatherJsonFile.weather.description;
+  this.forecast = weatherJsonFile.weather.description;
   this.time = new Date(Date.parse(weatherJsonFile.datetime)).toDateString();
 }
 
