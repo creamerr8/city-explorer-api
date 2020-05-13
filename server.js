@@ -15,9 +15,11 @@ app.use(cors());
 //   res.redirect('https://codefellows.github.io/code-301-guide/curriculum/city-explorer-app/front-end/')
 // })
 
-app.get('/location', getLocation) 
+app.get('/location', getLocation); 
 
-app.get('/weather', getWeather)
+app.get('/weather', getWeather);
+
+app.get('/trails', getTrails);
 
 
 
@@ -26,30 +28,25 @@ app.get('/weather', getWeather)
 
 function getWeather(req, res){
 
-  const url = 'https://api.weatherbit.io/v2.0/current';
+  const url = 'https://api.weatherbit.io/v2.0/forecast/daily';
   const queryParams = {
   key: process.env.WEATHER_API_KEY,
-  lat: req.query.lattitude,
+  lat: req.query.latitude,
   lon: req.query.longitude
   };
 
   superagent.get(url)
     .query(queryParams)
     .then(resultWeather =>{
-    const weatherMap = resultWeather.body.data.map(weatherJsonFile => new Weather);
+    const weatherMap = resultWeather.body.data.map(weatherJsonFile => new Weather(weatherJsonFile));
     res.send(weatherMap);
   })
-  .catch(error => res.send(error).status(500));
-//   const results = [];
-//   const json = require('./data/weather.json')
-//   const weatherData = json.data;
-//   for(let i = 0; i < weatherData.length; i++){
-//   results.push(new Weather(weatherData[i]));
-// }
+  .catch(error => {
+  res.send(error).status(500);
+  console.log(error)
+  });
 
-  // res.send(results);
 }
-
 
 
 
@@ -69,11 +66,36 @@ function getLocation (req, res){
     .then(resultLocation => {
     const newLocation = new Location(resultLocation.body, reqCityQuery);
     res.send(newLocation);
-    console.log(newLocation);
+  })
+  .catch(error => {
+  res.send(error).status(500);
+  console.log(error)
   });
 };
 
-// -----------------------Objects----------------------------------
+
+function getTrails (req, res){
+  const url = 'https://www.hikingproject.com/data/get-trails'
+  const queryParams = {
+  key: process.env.TRAIL_API_KEY,
+  lat: req.query.latitude,
+  lon: req.query.longitude
+  }
+
+  superagent.get(url)
+    .query(queryParams)
+    .then(trailResult => {
+      const trailMap = trailResult.body.trails.map(trailsFile => new Trail(trailsFile));
+      res.send(trailMap);
+      console.log(trailMap);
+  })
+  .catch(error => {
+  res.send(error).status(500);
+  // console.log(error)
+  });
+}
+
+// -----------------------Constuctors----------------------------------
 
 function Location(locationJsonFile, reqCityQuery){
   this.search_query = reqCityQuery; // TODO: better search query
@@ -85,9 +107,21 @@ function Location(locationJsonFile, reqCityQuery){
 
 function Weather(weatherJsonFile){
   this.forecast = weatherJsonFile.weather.description;
-  this.time = new Date(Date.parse(weatherJsonFile.datetime)).toDateString();
+  this.time = new Date(weatherJsonFile.ts * 1000).toDateString();
 }
 
+function Trail(trailsFile){
+  this.name = trailsFile.name;
+  this.location = trailsFile.location;
+  this.length = trailsFile.length;
+  this.stars = trailsFile.stars;
+  this.star_votes = trailsFile.starVotes;
+  this.summary = trailsFile.summary;
+  this.trail_url = trailsFile.url;
+  this.conditions = trailsFile.conditionStatus;
+  this.condition_date = trailsFile.conditionDate.split(' ')[0];
+  this.condition_time = trailsFile.conditionTine.split(' ')[1];
+}
 
 
 
