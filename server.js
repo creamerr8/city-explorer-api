@@ -77,7 +77,7 @@ function getLocation (req, res){
 function getTrails (req, res){
   const url = 'https://www.hikingproject.com/data/get-trails'
   const queryParams = {
-  key: process.env.TRAIL_API_KEY,
+  key: process.env.TRAILS_API_KEY,
   lat: req.query.latitude,
   lon: req.query.longitude
   }
@@ -87,11 +87,11 @@ function getTrails (req, res){
     .then(trailResult => {
       const trailMap = trailResult.body.trails.map(trailsFile => new Trail(trailsFile));
       res.send(trailMap);
-      console.log(trailMap);
+      // console.log(trailMap);
   })
   .catch(error => {
   res.send(error).status(500);
-  // console.log(error)
+  console.log(error)
   });
 }
 
@@ -111,6 +111,7 @@ function Weather(weatherJsonFile){
 }
 
 function Trail(trailsFile){
+  console.log(trailsFile);
   this.name = trailsFile.name;
   this.location = trailsFile.location;
   this.length = trailsFile.length;
@@ -120,7 +121,8 @@ function Trail(trailsFile){
   this.trail_url = trailsFile.url;
   this.conditions = trailsFile.conditionStatus;
   this.condition_date = trailsFile.conditionDate.split(' ')[0];
-  this.condition_time = trailsFile.conditionTine.split(' ')[1];
+  this.condition_time = trailsFile.conditionDate.split(' ')[1];
+
 }
 
 
