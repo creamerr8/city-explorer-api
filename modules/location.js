@@ -2,8 +2,19 @@
 
 const pg = require('pg');
 const superagent = require('superagent');
+const express = require('express');
+const cors = require('cors');
 
+const app = express();
+app.use(cors());
+
+
+
+require('dotenv').config();
 const client = new pg.Client(process.env.DATABASE_URL);
+client.on('error', error => console.error(error));
+client.connect();
+
 
 
 function getLocation (req, res){
@@ -17,7 +28,7 @@ function getLocation (req, res){
   format: 'json'
   };
 
-
+console.log('test')
   const sqlQuery = 'SELECT * FROM location WHERE search_query=$1';
   const sqlVal = [reqCityQuery];
   client.query(sqlQuery, sqlVal)
@@ -30,8 +41,9 @@ function getLocation (req, res){
         superagent.get(url)
           .query(queryParams)
           .then(resultLocation => {
+            // console.log(resultLocation);
             const newLocation = new Location(resultLocation.body, reqCityQuery);
-            const sqlQuery = 'INSERT INTO locations (latitude, search_query, longitude, formatted_query) VALUES ($1, $2, $3, $4)';
+            const sqlQuery = 'INSERT INTO location (latitude, search_query, longitude, formatted_query) VALUES ($1, $2, $3, $4)';
             const valueArray = [newLocation.latitude, newLocation.search_query, newLocation.longitude, newLocation.formatted_query];
             client.query(sqlQuery, valueArray);
             res.send(newLocation)

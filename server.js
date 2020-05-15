@@ -29,7 +29,7 @@ app.get('/trails', getTrails);
 // app.get('/movies', getMovies);
 
 const getRestaurnats = require('./modules/restaurants.js');
-app.get('/restaurants', getRestaurnats);
+app.get('/yelp', getRestaurnats);
 
 
 

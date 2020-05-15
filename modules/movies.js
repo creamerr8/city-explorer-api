@@ -1,20 +1,26 @@
 'use strict'
 
-// const pg = require('pg');
+// // const pg = require('pg');
 // const superagent = require('superagent');
+// // const express = require('express');
+// // const cors = require('cors');
 
-// const client = new pg.Client(process.env.DATABASE_URL);
+// // const app = express();
+// // app.use(cors());
 
+// // const client = new pg.Client(process.env.DATABASE_URL);
+// const searchQuery = requst.body.search_query
 
 // function getMovies (req, res){
-//   const url = 'https://api.themoviedb.org/3/movie/550'
+//   const url = 'https://api.themoviedb.org/3/search/movie'
 //   const queryParams = {
-//     key: process.env.MOVIES_API_KEY, 
-
+//     api_key: process.env.MOVIES_API_KEY, 
+//     query: searchQuery
 //   }
 
 //   superagent.get(url)
 //     .then(moviesResult => {
+//       // console.log(moviesResult)
 //       const movieMap = moviesResult.body
 //     })
 // }
